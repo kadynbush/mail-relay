@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<title>Open in Mail</title>
+<!--
+  Mail relay for Daybook.
+  Daybook links here as  .../#<Message-ID>  (the email's Message-ID, URL-encoded, without the < >).
+  Everything after "#" stays in your browser -- it is never sent to GitHub or anyone else.
+  This page turns it into an Apple Mail link (message:%3C<Message-ID>%3E) and opens it.
+  Nothing is stored, logged or loaded from anywhere else.
+-->
+<style>
+  :root { color-scheme: light dark; --bg: #EDF1F3; --card: #FFFFFF; --ink: #14222A; --muted: #566772; --accent: #0A7480; --on: #FFFFFF; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0D151A; --card: #16222A; --ink: #E7EFF3; --muted: #98A9B3; --accent: #4CC3CD; --on: #062A2E; } }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 420px; margin: 0 auto; padding: calc(48px + env(safe-area-inset-top, 0px)) 20px 48px; display: grid; gap: 16px; }
+  h1 { margin: 0; font-size: 1.4rem; line-height: 1.2; }
+  p { margin: 0; color: var(--muted); }
+  a.btn { display: block; text-align: center; padding: 14px 18px; border-radius: 12px; background: var(--accent); color: var(--on); font-weight: 600; text-decoration: none; }
+  a.btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">Opening Mail…</h1>
+  <p id="status">If Mail doesn't open on its own, tap the button.</p>
+  <a class="btn" id="open" href="#" hidden>Open in Mail</a>
+</main>
+<script>
+(function () {
+  var raw = location.hash.slice(1), id = '';
+  try { id = decodeURIComponent(raw); } catch (e) { id = ''; }
+  id = id.replace(/^<|>$/g, '');
+  // A Message-ID looks like "something@something": no spaces, no angle brackets, sane length.
+  var ok = id.length > 2 && id.length <= 300 && id.indexOf('@') > 0 && !/[\s<>]/.test(id);
+  var title = document.getElementById('title'), status = document.getElementById('status'), btn = document.getElementById('open');
+  if (!ok) {
+    title.textContent = 'No email to open';
+    status.textContent = 'This link is missing the email it should open. Go back and try the link again.';
+    return;
+  }
+  var url = 'message:%3C' + encodeURIComponent(id) + '%3E';
+  btn.href = url;
+  btn.hidden = false;
+  // The tap that brought you here counts as permission to hand off to Mail right away.
+  location.href = url;
+  // Coming back from Mail (or if the hand-off was blocked) leaves the button ready to tap.
+  setTimeout(function () { title.textContent = 'Open this email in Mail'; }, 1500);
+})();
+</script>
+</body>
+</html>
